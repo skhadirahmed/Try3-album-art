@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Try3-v1</string>
+    <string name="No_of_songs_are">No of songs are </string>
+    <string name="no_of_songs">no of songs</string>
 </resources>

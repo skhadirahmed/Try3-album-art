@@ -3,11 +3,18 @@ package com.khadir.android.try3_v1;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,7 +27,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
 
     int song_playing_number = 0;
     String songs[] = new String[10];
-    MediaPlayer mediaPlayer ;
+    MediaPlayer mediaPlayer;
+    CardView cardView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +38,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         t = findViewById(R.id.id);
         t1 = findViewById(R.id.image_path);
         nos = findViewById(R.id.nos);
-        mediaPlayer= new MediaPlayer();
+        cardView = findViewById(R.id.card);
+
+        mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
 
         LinearLayout root = findViewById(R.id.root);
@@ -46,25 +56,28 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
         if (cursor != null) {
             Log.v("MainActivity", "cursor is not empty");
             cursor.moveToFirst();//1
-            cursor.moveToNext();//2
-            cursor.moveToNext();//3
-            cursor.moveToNext();//4 merci
-            cursor.moveToNext();//5 aandrudu
-            cursor.moveToNext();//6 baahubali
-            cursor.moveToNext();//6 baahubali
+//            cursor.moveToNext();//2
+//            cursor.moveToNext();//3
+//            cursor.moveToNext();//4 merci
+//            cursor.moveToNext();//5 aandrudu
+//            cursor.moveToNext();//6 baahubali
+//            cursor.moveToNext();//6 baahubali
             Log.v("MainActivity", "album art is " + cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART)));
             String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART));
             t1.setText(path);
 
             String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM));
+            t.setTextColor(Color.WHITE);
             t.setText(album);
 
             String nos1 = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS));
-            nos.setText(nos1);
+            nos.setText(getString(R.string.No_of_songs_are) + " " + nos1);
 
             Bitmap bm = BitmapFactory.decodeFile(path);
-            ImageView image = (ImageView) findViewById(R.id.image);
-            image.setImageBitmap(bm);
+            ImageView image = findViewById(R.id.image);
+//            image.setImageBitmap(bm);
+            Drawable drawable = Drawable.createFromPath(path);
+            cardView.setBackground(drawable);
 
             Cursor songsCursor = getContentResolver().query(uri_for_songs, s, selection, new String[]{album}, null);
             if (songsCursor != null) {
@@ -80,9 +93,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
                     root.addView(textView);
                 } while (songsCursor.moveToNext());
             }
+            songsCursor.close();
         } else {
             Log.v("MainActivity", "cursor is!!!!!!!! empty");
         }
+        cursor.close();
 
         try {
             mediaPlayer.setDataSource(songs[song_playing_number]);
@@ -103,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnCom
     @Override
     public void onCompletion(MediaPlayer mp) {
         Toast.makeText(getApplicationContext(), "completed playing a song", Toast.LENGTH_LONG).show();
+
         song_playing_number++;
         mp.reset();
         try {
